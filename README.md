@@ -41,6 +41,7 @@ Xây dựng một ứng dụng trả lời câu hỏi thông minh kết hợp gi
 
 ## 📁 Cấu trúc dự án
 ```
+Chatbot
 ├── questions.csv # File chứa dữ liệu câu hỏi
 ├── images/ # Thư mục chứa ảnh minh họa
 ├── driving_data.pdf # File PDF gốc
