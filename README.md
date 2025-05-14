@@ -1,6 +1,6 @@
-# 🧠 Chatbot Dựa Trên CLIP & Gemini
+# Chatbot Dựa Trên CLIP & Gemini
 
-## 📌 Mục tiêu dự án
+## Mục tiêu dự án
 
 Xây dựng một ứng dụng trả lời câu hỏi thông minh kết hợp giữa:
 
@@ -11,7 +11,7 @@ Xây dựng một ứng dụng trả lời câu hỏi thông minh kết hợp gi
 
 ---
 
-## 🧰 Công nghệ sử dụng
+## Công nghệ sử dụng
 
 - `PyMuPDF (fitz)`: Trích xuất hình ảnh từ PDF.
 - `pdfminer.six`: Phân tích văn bản và phát hiện underline trong đáp án.
@@ -21,7 +21,7 @@ Xây dựng một ứng dụng trả lời câu hỏi thông minh kết hợp gi
 
 ---
 
-## ⚙️ Quy trình hoạt động
+## Quy trình hoạt động
 
 1. **Trích xuất dữ liệu từ PDF**:
     - Câu hỏi, đáp án, đáp án đúng (gạch chân).
@@ -39,7 +39,7 @@ Xây dựng một ứng dụng trả lời câu hỏi thông minh kết hợp gi
 
 ---
 
-## 📁 Cấu trúc dự án
+## Cấu trúc dự án
 ```
 Chatbot
 ├── questions.csv # File chứa dữ liệu câu hỏi
@@ -52,13 +52,13 @@ Chatbot
 
 ---
 
-## 🚀 Khởi chạy ứng dụng
+## Khởi chạy ứng dụng
 
 ```bash
 streamlit run app.py
 ```
 
-## 🧪 Tính năng dự kiến mở rộng
+## Tính năng dự kiến mở rộng
 
 - [ ] **Thi thử 30 câu ngẫu nhiên**  
   Cho phép người dùng bắt đầu một bài thi gồm 30 câu hỏi được chọn ngẫu nhiên từ bộ dữ liệu. Hệ thống sẽ chấm điểm và hiển thị kết quả sau khi hoàn thành.
