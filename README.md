@@ -42,13 +42,18 @@ Xây dựng một ứng dụng trả lời câu hỏi thông minh kết hợp gi
 ## 📁 Cấu trúc dự án
 
 ├── questions.csv # File chứa dữ liệu câu hỏi
-├── images/ # Thư mục chứa ảnh minh họa
-├── driving_data.pdf # File PDF gốc
-├── extract_questions.py # Script trích xuất từ PDF
-├── app.py # Ứng dụng Streamlit
-├── api.py # Gọi Gemini API
-├── README.md # Mô tả dự án
 
+├── images/ # Thư mục chứa ảnh minh họa
+
+├── driving_data.pdf # File PDF gốc
+
+├── extract_questions.py # Script trích xuất từ PDF
+
+├── app.py # Ứng dụng Streamlit
+
+├── api.py # Gọi Gemini API
+
+├── README.md # Mô tả dự án
 
 ---
 
