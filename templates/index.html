@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Chatbot Món Ngon</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>🍜 Chatbot Gợi Ý Món Ngon</h1>
+    <form method="POST">
+      <input type="text" name="query" placeholder="Bạn muốn hỏi gì hôm nay?" required>
+      <button type="submit">Gửi</button>
+    </form>
+
+    {% if response %}
+      <div class="response">
+        {% if response.type == 'list' %}
+          <h2>Gợi ý món ăn:</h2>
+          <ul>
+            {% for item in response.data %}
+              <li>
+                <h3>{{ item.title }}</h3>
+                <p><strong>Nguyên liệu:</strong> {{ item.ingredients }}</p>
+                <p><strong>Cách làm:</strong> {{ item.steps }}</p>
+              </li>
+            {% endfor %}
+          </ul>
+        {% elif response.type == 'detail' %}
+          <h2>{{ response.title }}</h2>
+          <p><strong>{{ response.tag.capitalize() }}:</strong> {{ response.content }}</p>
+        {% elif response.type == 'error' %}
+          <p class="error">{{ response.message }}</p>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>
