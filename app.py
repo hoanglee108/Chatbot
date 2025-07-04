@@ -1,25 +1,40 @@
-from flask import Flask, render_template, request
+from flask import Flask, request, jsonify, session, render_template, redirect, url_for
 import pandas as pd
 from utils import handle_query
+import os
 
 app = Flask(__name__)
-df = pd.read_csv("crawl/mon_ngon.csv").fillna("")
+app.secret_key = os.urandom(24).hex() 
+
+
+import json
+with open("crawl/mon_ngon.json", "r", encoding="utf-8-sig") as f:
+    data = json.load(f) 
+df = pd.DataFrame(data)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    response = None
+    if "chat_history" not in session:
+        session["chat_history"] = []
+
     if request.method == "POST":
         user_input = request.form["query"]
+        session["chat_history"].append(("Bạn", user_input))
+        session.modified = True
+
         kind, result = handle_query(user_input, df)
+        session["chat_history"].append(("Trợ lý", result))
+        session.modified = True
+        return redirect(url_for('index'))
 
-        if kind == "list":
-            response = {"type": "list", "data": result.to_dict(orient="records")}
-        elif kind == "detail":
-            response = {"type": "detail", **result}
-        else:
-            response = {"type": "error", "message": result}
+    return render_template("index.html", chat_history=session["chat_history"])
 
-    return render_template("index.html", response=response)
+@app.route("/api/query", methods=["POST"])
+def query():
+    data = request.json
+    user_input = data.get("query", "")
+    kind, result = handle_query(user_input, df)
+    return jsonify({"response": result})
 
 if __name__ == "__main__":
     app.run(debug=True)
