@@ -48,8 +48,39 @@ Hãy trả lời một cách rõ ràng, súc tích, dễ hiểu bằng tiếng V
     return remove_html_tags(response.strip())
 
 # Hàm xử lý chính
-def handle_query(user_input, retriever):
-    user_input = user_input.strip()
+def handle_query(user_input, retriever, df):
+    user_input = user_input.lower().strip()
+
+    # Rule-based xử lý truy vấn có từ khóa chi tiết
+    keytasks_tags = ["nguyên liệu", "sơ chế", "cách làm", "cách dùng", "mẹo nhỏ"]
+    tag_map = {
+        "nguyên liệu": "ingredients",
+        "sơ chế": "description",
+        "cách làm": "steps",
+        "cách dùng": "usage",
+        "mẹo nhỏ": "tips"
+    }
+
+    for tag in keytasks_tags:
+        if tag in user_input:
+            title_part = user_input.replace(tag, "").strip()
+            matched = df[df["title"].str.lower() == title_part]
+            if not matched.empty:
+                row = matched.iloc[0]
+                col = tag_map.get(tag)
+                content = row.get(col, "").strip()
+                if content:
+                    response = f"🍽️ {row['title']}\n\n🔍 {tag.capitalize()}:\n{content}"
+                    return "detail", content
+                else:
+                    return "detail", "❌ Không có thông tin chi tiết."
+
+    # Nếu không khớp từ khóa nào, fallback sang RAG
     related_docs = retriever.retrieve(user_input, top_k=5)
     response = generate_answer(user_input, related_docs)
     return "rag", response
+
+
+def stream_generator(text, chunk_size=20):
+    for i in range(0, len(text), chunk_size):
+        yield text[i:i + chunk_size]

@@ -25,17 +25,33 @@ document.addEventListener("DOMContentLoaded", () => {
       userBubble.textContent = text;
       chatBox.appendChild(userBubble);
 
+      const botBubble = document.createElement("div");
+      botBubble.classList.add("chat-bubble", "bot-bubble");
+      chatBox.appendChild(botBubble);
+
       fetch("/api/query", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: text })
-      })
-      .then(res => res.json())
-      .then(data => {
-        const botBubble = document.createElement("div");
-        botBubble.classList.add("chat-bubble", "bot-bubble");
-        botBubble.textContent = data.response;
-        chatBox.appendChild(botBubble);
+      }).then(response => {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+
+        function readChunk() {
+          reader.read().then(({ done, value }) => {
+            if (done) return;
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split("\n\n").filter(line => line.startsWith("data: "));
+            lines.forEach(line => {
+              const text = line.replace("data: ", "");
+              botBubble.textContent += text;
+              chatBox.scrollTop = chatBox.scrollHeight;
+            });
+            readChunk();
+          });
+        }
+
+        readChunk();
       });
 
       textarea.value = "";

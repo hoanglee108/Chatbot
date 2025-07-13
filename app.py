@@ -1,6 +1,7 @@
-from flask import Flask, request, jsonify, session, render_template, redirect, url_for
+from flask import Flask, request, jsonify, session, render_template, redirect, url_for, Response
 import os
-from utils import handle_query, load_and_prepare_documents, Retriever
+from utils import handle_query, load_and_prepare_documents, Retriever, stream_generator
+import time
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24).hex()
@@ -31,8 +32,14 @@ def index():
 def query():
     data = request.json
     user_input = data.get("query", "")
-    kind, result = handle_query(user_input, retriever)
-    return jsonify({"response": result})
+    kind, result = handle_query(user_input, retriever, df)
+
+    def generate_stream():
+        for chunk in stream_generator(result):
+            yield f"data: {chunk}\n\n"
+            time.sleep(0.03)
+
+    return Response(generate_stream(), mimetype="text/event-stream")
 
 if __name__ == "__main__":
     app.run(debug=True)
