@@ -1,16 +1,14 @@
 from flask import Flask, request, jsonify, session, render_template, redirect, url_for
-import pandas as pd
-from utils import handle_query
 import os
+from utils import handle_query, load_and_prepare_documents, Retriever
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24).hex() 
+app.secret_key = os.urandom(24).hex()
 
-
-import json
-with open("crawl/mon_ngon.json", "r", encoding="utf-8-sig") as f:
-    data = json.load(f) 
-df = pd.DataFrame(data)
+# Load dữ liệu & khởi tạo retriever
+json_path = "crawl/mon_ngon.json"
+df, documents = load_and_prepare_documents(json_path)
+retriever = Retriever(documents)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -22,7 +20,7 @@ def index():
         session["chat_history"].append(("Bạn", user_input))
         session.modified = True
 
-        kind, result = handle_query(user_input, df)
+        kind, result = handle_query(user_input, retriever)
         session["chat_history"].append(("Trợ lý", result))
         session.modified = True
         return redirect(url_for('index'))
@@ -33,7 +31,7 @@ def index():
 def query():
     data = request.json
     user_input = data.get("query", "")
-    kind, result = handle_query(user_input, df)
+    kind, result = handle_query(user_input, retriever)
     return jsonify({"response": result})
 
 if __name__ == "__main__":
