@@ -7,13 +7,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const textarea = document.querySelector(".input-container textarea");
   const chatBox = document.getElementById("chat-box");
   const welcome = document.getElementById("welcome-msg");
+  const historyList = document.getElementById("history-list");
 
   let firstMessageSent = false;
 
   function sendMessage() {
     const text = textarea.value.trim();
     if (text !== "") {
-      // Ẩn lời chào & mở rộng chat-box lần đầu
       if (!firstMessageSent) {
         if (welcome) welcome.classList.add("hide");
         chatBox.classList.add("full-chat");
@@ -74,9 +74,52 @@ document.addEventListener("DOMContentLoaded", () => {
   historyBtn.addEventListener("click", () => {
     sidebar.classList.toggle("expanded");
     main.classList.toggle("blurred");
+
+    fetch("/api/history_list")
+      .then(res => res.json())
+      .then(files => {
+        historyList.innerHTML = "";
+        files.forEach(file => {
+          const item = document.createElement("div");
+          item.textContent = file;
+          item.classList.add("history-item");
+          item.addEventListener("click", () => {
+            fetch(`/api/load_chat/${file}`)
+              .then(res => res.json())
+              .then(chat => {
+                chatBox.innerHTML = "";
+                chat.forEach(msg => {
+                  const bubble = document.createElement("div");
+                  bubble.classList.add("chat-bubble", msg.role === "user" ? "user-bubble" : "bot-bubble");
+                  bubble.textContent = msg.content;
+                  chatBox.appendChild(bubble);
+                });
+                firstMessageSent = true;
+                if (welcome) welcome.classList.add("hide");
+              });
+          });
+          historyList.appendChild(item);
+        });
+      });
   });
 
   newChatBtn.addEventListener("click", () => {
+    if (chatBox.children.length > 0) {
+      const messages = [];
+      chatBox.querySelectorAll(".chat-bubble").forEach(bubble => {
+        messages.push({
+          role: bubble.classList.contains("user-bubble") ? "user" : "assistant",
+          content: bubble.textContent.trim()
+        });
+      });
+
+      fetch("/api/save_chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat: messages })
+      });
+    }
+
     chatBox.innerHTML = "";
     textarea.value = "";
     textarea.style.height = "auto";
